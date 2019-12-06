@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
-import { Layout, Menu, Breadcrumb, Icon } from 'antd';
+import { Layout, Typography } from 'antd';
 import './index.scss';
 
-const { SubMenu } = Menu;
-const { Header, Content, Footer, Sider } = Layout;
+const { Title } = Typography;
+const { Header } = Layout;
 
 function DefaultHeader() {
-    return <Header style={{ background: '#fff', padding: 0 }} />;
+    return (
+        <Header style={{ background: '#fff', padding: 0 }}>
+            <Title>Iot Electronic Balance</Title>
+        </Header>
+    );
 }
 
 export default DefaultHeader;

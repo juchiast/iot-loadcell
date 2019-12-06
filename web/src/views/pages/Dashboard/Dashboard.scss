@@ -1,0 +1,16 @@
+.dashboard {
+    height: 100%;
+
+    .ant-select-selection {
+        min-width: 100px;
+    }
+
+    & > .ant-input-group-addon {
+        width: auto;
+    }
+}
+
+.ant-input-group > .ant-input:last-child,
+.ant-input-group-addon:last-child {
+    width: auto;
+}
