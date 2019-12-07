@@ -13,6 +13,7 @@
     "rules": {
         "prettier/prettier": ["error"],
         "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+        "react/jsx-no-target-blank": [0, { "allowReferrer": true, "enforceDynamicLinks": "never" }],
         "no-unused-vars": "warn",
         // "no-console": "off",
         "func-names": "off"
