@@ -1,13 +1,16 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Router } from 'react-router-dom';
+import history from '../services/history';
 import Dashboard from './pages/Dashboard';
+import Statistic from './pages/Statistic';
 
 export default function Routes() {
     return (
-        <Switch>
+        <Switch history={history}>
             <Route path="/" exact component={Dashboard} />
-            {/* redirect user to SignIn page if route does not exist and user is not authenticated */}
-            {/* <Route component={SignIn} /> */}
+            <Route path="/dashboard" exact component={Dashboard} />
+            <Route path="/statistic" component={Statistic} />
+            <Route component={Dashboard} />
         </Switch>
     );
 }
