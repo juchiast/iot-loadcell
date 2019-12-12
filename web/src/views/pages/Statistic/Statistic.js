@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from 'react';
-import { Table, Divider, Tag, Icon, Button } from 'antd';
+import { Table, Button } from 'antd';
 
 const columns = [
     {

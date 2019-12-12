@@ -12,12 +12,14 @@ import {
     Col,
     Row,
 } from 'antd';
+import QRCode from 'qrcode.react';
 import './Dashboard.scss';
+
+import ItemSelect from '../../../components/ItemSelect';
 
 const { Option } = Select;
 const { Content } = Layout;
 const { Meta } = Card;
-const { Search } = Input;
 
 const DumpData = {
     vegas: [{ rauCai: 'Rau cải' }, { rauNgot: 'Rau ngót' }, { carrot: 'Cà rốt' }],
@@ -70,6 +72,10 @@ class Dashboard extends Component {
         this.setState({ isMeasured: !preMeasure });
     };
 
+    onItemSelect = (typeItem, nameItem) => {
+        this.setState({ typeItem, nameItem });
+    };
+
     render() {
         const { typeItem, nameItem, isMeasured, autoId } = this.state;
         console.log('xx00 nameItem: ', nameItem);
@@ -90,36 +96,7 @@ class Dashboard extends Component {
                             flexFlow: 'column nowrap',
                         }}
                     >
-                        <div>
-                            <Search
-                                placeholder="Tìm kiếm sản phẩm"
-                                onSearch={(value) => console.log(value)}
-                                style={{ width: 200 }}
-                            />
-                            <Tooltip title="Loại">
-                                <Select defaultValue={typeItem} onChange={this.onTypeChange}>
-                                    <Option value="vegas">Rau củ</Option>
-                                    <Option value="fruit">Trái cây</Option>
-                                    <Option value="meet">Thịt</Option>
-                                </Select>
-                            </Tooltip>
-                            <Tooltip title="Tên sản phẩm">
-                                <Select
-                                    defaultValue={nameItem}
-                                    value={nameItem}
-                                    onChange={this.onNameChange}
-                                >
-                                    {DumpData[typeItem].map((v) => (
-                                        <Option
-                                            key={`nameItem_${new Date()}`}
-                                            value={Object.keys(v)[0]}
-                                        >
-                                            {v[Object.keys(v)[0]]}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Tooltip>
-                        </div>
+                        <ItemSelect onSelect={this.onItemSelect} />
                         <div>
                             <Card
                                 hoverable
@@ -156,6 +133,9 @@ class Dashboard extends Component {
                             justifyContent: 'center',
                         }}
                     >
+                        <div>
+                            <QRCode value="http://facebook.github.io/react/" />
+                        </div>
                         <div>
                             <Form.Item
                                 // label="Validating"
