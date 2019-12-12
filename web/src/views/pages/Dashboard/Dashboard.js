@@ -65,6 +65,11 @@ class Dashboard extends Component {
         this.setState({ nameItem: value });
     };
 
+    nextItemOnClick = () => {
+        const { isMeasured: preMeasure } = this.state;
+        this.setState({ isMeasured: !preMeasure });
+    };
+
     render() {
         const { typeItem, nameItem, isMeasured, autoId } = this.state;
         console.log('xx00 nameItem: ', nameItem);
@@ -180,8 +185,9 @@ class Dashboard extends Component {
                             </Form.Item>
                         </div>
                         <div>
-                            <Button type="primary">Tiếp theo</Button>
-                            <Button type="danger">Cân lại</Button>
+                            <Button type="primary" onClick={this.nextItemOnClick}>
+                                OK
+                            </Button>
                         </div>
                     </Col>
                 </Row>

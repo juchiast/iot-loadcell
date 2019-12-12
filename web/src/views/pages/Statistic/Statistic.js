@@ -1,52 +1,36 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from 'react';
-import { Table, Divider, Tag } from 'antd';
+import { Table, Divider, Tag, Icon, Button } from 'antd';
 
 const columns = [
     {
-        title: 'Name',
+        title: 'ID',
+        dataIndex: 'id',
+        key: 'id',
+        render: (text) => <a>{text}</a>,
+    },
+    {
+        title: 'Tên',
         dataIndex: 'name',
         key: 'name',
         render: (text) => <a>{text}</a>,
     },
     {
-        title: 'Age',
-        dataIndex: 'age',
-        key: 'age',
+        title: 'khối lượng (gam)',
+        dataIndex: 'weight',
+        key: 'weight',
     },
     {
-        title: 'Address',
-        dataIndex: 'address',
-        key: 'address',
+        title: 'Phân loại',
+        dataIndex: 'type',
+        key: 'type',
     },
     {
-        title: 'Tags',
-        key: 'tags',
-        dataIndex: 'tags',
-        render: (tags) => (
-            <span>
-                {tags.map((tag) => {
-                    let color = tag.length > 5 ? 'geekblue' : 'green';
-                    if (tag === 'loser') {
-                        color = 'volcano';
-                    }
-                    return (
-                        <Tag color={color} key={tag}>
-                            {tag.toUpperCase()}
-                        </Tag>
-                    );
-                })}
-            </span>
-        ),
-    },
-    {
-        title: 'Action',
+        title: 'Hành động',
         key: 'action',
         render: (text, record) => (
             <span>
-                <a>Invite {record.name}</a>
-                <Divider type="vertical" />
-                <a>Delete</a>
+                <Button type="danger" shape="circle" icon="delete" />
             </span>
         ),
     },
@@ -55,24 +39,24 @@ const columns = [
 const data = [
     {
         key: '1',
-        name: 'John Brown',
-        age: 32,
-        address: 'New York No. 1 Lake Park',
-        tags: ['nice', 'developer'],
+        name: 'Quả cam',
+        id: 32,
+        type: 'fruit',
+        weight: 45.6,
     },
     {
         key: '2',
-        name: 'Jim Green',
-        age: 42,
-        address: 'London No. 1 Lake Park',
-        tags: ['loser'],
+        name: 'Quả cam',
+        id: 42,
+        type: 'fruit',
+        weight: 45.6,
     },
     {
         key: '3',
-        name: 'Joe Black',
-        age: 32,
-        address: 'Sidney No. 1 Lake Park',
-        tags: ['cool', 'teacher'],
+        name: 'Quả cam',
+        id: 32,
+        type: 'fruit',
+        weight: 45.6,
     },
 ];
 

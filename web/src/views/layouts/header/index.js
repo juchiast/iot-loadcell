@@ -8,7 +8,7 @@ const { Header } = Layout;
 function DefaultHeader() {
     return (
         <Header style={{ background: '#fff', padding: 0 }}>
-            <Title>Iot Electronic Balance</Title>
+            <Title>Cân điện tử Iot</Title>
         </Header>
     );
 }
