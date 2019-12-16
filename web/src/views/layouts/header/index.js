@@ -13,12 +13,12 @@ function DefaultHeader() {
                 background: '#fff',
                 padding: 0,
                 display: 'flex',
-                justifyContent: 'space-around',
+                alignItems: 'stretch',
             }}
         >
             {/* <Row> */}
             <img width={64} src={logoPath} alt="logo" />
-            <Title>Cân điện tử Iot</Title>
+            <Title style={{ flexGrow: 10 }}>Cân điện tử IoT</Title>
             {/* </Row> */}
         </Header>
     );
