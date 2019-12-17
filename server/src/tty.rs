@@ -17,7 +17,7 @@ impl TTY {
         let fd = port.into_raw_fd();
         let file = unsafe { std::fs::File::from_raw_fd(fd) };
         let tokio_file = tokio::fs::File::from_std(file);
-        let (r, w) = tokio::io::split(tokio_file);
+        let (r, _w) = tokio::io::split(tokio_file);
         let buf_reader = tokio::io::BufReader::new(r);
         use tokio::io::AsyncBufReadExt;
         let lines = buf_reader.lines();
