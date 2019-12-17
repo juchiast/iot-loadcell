@@ -1,6 +1,6 @@
 use crate::Error;
 use futures::future;
-use futures::{StreamExt, TryStreamExt};
+use futures::StreamExt;
 use std::path::PathBuf;
 use std::pin::Pin;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt};

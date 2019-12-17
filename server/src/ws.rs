@@ -2,14 +2,12 @@ use futures::future;
 use futures::prelude::*;
 use warp::filters::ws::Message;
 use warp::filters::ws::WebSocket;
-use warp::reject::Rejection;
-use warp::Filter;
 
 pub async fn ws_handle(name: String, mut ws: WebSocket) {
     let mut path = std::path::PathBuf::new();
     path.push("/dev/");
     path.push(&name);
-    let mut tty = match crate::tty::TTY::open(path).await {
+    let tty = match crate::tty::TTY::open(path).await {
         Err(_) => {
             ws.send(Message::text(
                 serde_json::to_string(&serde_json::json!({"error": "Can't open serial"})).unwrap(),
