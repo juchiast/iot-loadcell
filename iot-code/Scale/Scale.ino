@@ -1,5 +1,7 @@
 #include "HX711.h"
 
+// SCK -> A0
+// DT -> A1
 HX711 scale(A1, A0);
 
 #define GAP_THRESHOLD 0.1
