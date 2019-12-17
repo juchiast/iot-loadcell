@@ -17,7 +17,7 @@ struct GapCounter {
   GapCounter() {
     smallGapCount = 0;
     stableAverage = 0;
-    state = GapCounterState::CHANGING;
+    state = GapCounterState::STABLE;
   }
 
   void newGap(float x, float peak) {
@@ -34,6 +34,7 @@ struct GapCounter {
         return;
       case GapCounterState::STABLE:
         if (x >= GAP_THRESHOLD) {
+          Serial.println("changing");
           smallGapCount = 0;
           stableAverage = 0;
           state = GapCounterState::CHANGING;
@@ -60,7 +61,7 @@ struct GapCounter {
 GapCounter gap_counter;
 
 enum class RawReaderState {
-  UP, DOWN,
+  WAITING, UP, DOWN,
 };
 
 struct RawReader {
@@ -69,8 +70,7 @@ struct RawReader {
   RawReaderState state;
 
   RawReader() {
-    startValue = previousValue = -11111;
-    state = RawReaderState::UP;
+    state = RawReaderState::WAITING;
   }
 
   void newValue(float x) {
@@ -84,12 +84,23 @@ struct RawReader {
     }
   }
 
-  void stateStuffs() {
-    if (state == RawReaderState::DOWN) {
-      digitalWrite(LED_BUILTIN, LOW);
-    } else {
-      
+  void newCommand(const String &buf) {
+    if (buf == "close") {
+      state = RawReaderState::WAITING;
+      return;
     }
+
+    if (state == RawReaderState::WAITING) {
+      if (buf.startsWith("hi ")) {
+        scale.set_scale();
+        scale.tare();
+        startValue = previousValue = -11111;
+        state = RawReaderState::UP;
+      }
+    }
+  }
+
+  void stateStuffs() {
   }
 
 private:
@@ -121,20 +132,29 @@ private:
 };
 
 RawReader raw_reader;
+String buf;
 
 float calibration_factor = 2000;
 
 void setup() {
   Serial.begin(9600);
-  scale.set_scale();
-  scale.tare();
   pinMode(LED_BUILTIN, OUTPUT);
-
   raw_reader = RawReader();
   gap_counter = GapCounter();
 }
 
 void loop() {
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == '\n') {
+      Serial.println(buf);
+      raw_reader.newCommand(buf);
+      buf = "";
+    } else {
+      buf += c;
+    }
+  }
+  
   scale.set_scale(calibration_factor);
   float x = scale.get_units();
   raw_reader.newValue(x);
