@@ -15,7 +15,7 @@ pub fn tty_discorver() -> UnboundedReceiver<Vec<PathBuf>> {
             let ports = serialport::available_ports()
                 .map_err(|e| warn!("Error: {}", e))
                 .unwrap_or_default();
-            let ports = future::join_all(
+            let mut ports: Vec<_> = future::join_all(
                 ports
                     .into_iter()
                     .map(|port| test_port(port.port_name.into())),
@@ -24,6 +24,7 @@ pub fn tty_discorver() -> UnboundedReceiver<Vec<PathBuf>> {
             .into_iter()
             .filter_map(Result::ok)
             .collect();
+            ports.sort();
             if previous_ports.as_ref() != Some(&ports) {
                 tx.send(ports.clone()).unwrap();
                 previous_ports = Some(ports);
