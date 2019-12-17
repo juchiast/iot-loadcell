@@ -5,12 +5,6 @@ use warp::filters::ws::WebSocket;
 use warp::reject::Rejection;
 use warp::Filter;
 
-pub fn route() -> impl Filter<Extract = impl warp::reply::Reply, Error = Rejection> {
-    warp::path!("dev" / String)
-        .and(warp::ws())
-        .map(|s, ws: warp::ws::Ws| ws.on_upgrade(move |websocket| ws_handle(s, websocket)))
-}
-
 pub async fn ws_handle(name: String, mut ws: WebSocket) {
     let mut path = std::path::PathBuf::new();
     path.push("/dev/");
