@@ -26,7 +26,8 @@ async fn main() {
         .and(warp::ws())
         .map(|s, ws: warp::ws::Ws| ws.on_upgrade(move |websocket| ws::ws_handle(s, websocket)));
 
-    let devs = warp::path("dev")
+    let devs = warp::path!("dev")
+        .and(warp::path::end())
         .and_then(tty_discover::tty_discover);
 
     let routes = ws.or(devs);
