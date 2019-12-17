@@ -44,5 +44,6 @@ pub async fn ws_handle(name: String, mut ws: WebSocket) {
         }
     });
     let read_ws = tokio::spawn(async move { while ws_rx.next().await.is_some() {} });
-    future::select(read_tty, read_ws).await;
+    let _ = future::join(read_tty, read_ws).await;
+    info!("Closed");
 }
