@@ -1,3 +1,4 @@
+use futures::future;
 use futures::prelude::*;
 use warp::filters::ws::Message;
 use warp::filters::ws::WebSocket;
@@ -8,18 +9,6 @@ pub fn route() -> impl Filter<Extract = impl warp::reply::Reply, Error = Rejecti
     warp::path!("dev" / String)
         .and(warp::ws())
         .map(|s, ws: warp::ws::Ws| ws.on_upgrade(move |websocket| ws_handle(s, websocket)))
-}
-
-async fn try_send(r: Result<String, tokio::io::Error>, ws: &mut WebSocket) -> Result<(), Box<str>> {
-    let line = r.map_err(|e| e.to_string().into_boxed_str())?;
-    let value = line
-        .parse::<f64>()
-        .map_err(|e| e.to_string().into_boxed_str())?;
-    let msg = serde_json::json!({ "value": value });
-    ws.send(Message::text(serde_json::to_string(&msg).unwrap()))
-        .await
-        .map_err(|e| e.to_string().into_boxed_str())?;
-    Ok(())
 }
 
 pub async fn ws_handle(name: String, mut ws: WebSocket) {
@@ -39,9 +28,21 @@ pub async fn ws_handle(name: String, mut ws: WebSocket) {
         Ok(tty) => tty,
     };
 
-    while let Some(maybe_line) = tty.lines.next().await {
-        if let Err(e) = try_send(maybe_line, &mut ws).await {
-            warn!("Error: {}", e);
+    let (mut ws_tx, mut ws_rx) = ws.split();
+
+    let read_tty = tokio::spawn(async move {
+        while let Some(maybe_line) = tty.lines.next().await {
+            if let Err(e) = maybe_line {
+                warn!("{}", e);
+                break;
+            }
+            let line = maybe_line.unwrap();
+            if let Err(e) = ws_tx.send(Message::text(line)).await {
+                warn!("{}", e);
+                break;
+            }
         }
-    }
+    });
+    let read_ws = tokio::spawn(async move { while ws_rx.next().await.is_some() {} });
+    future::select(read_tty, read_ws).await;
 }
