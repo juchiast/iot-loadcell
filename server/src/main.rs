@@ -3,8 +3,7 @@ extern crate log;
 
 mod tty;
 mod tty_discover;
-
-use futures::prelude::*;
+mod ws;
 
 #[derive(Debug)]
 pub enum Error {
@@ -17,16 +16,6 @@ pub type Result<T> = std::result::Result<T, crate::Error>;
 async fn main() {
     env_logger::init();
 
-    let mut rx = tty_discover::tty_discorver();
-
-    while let Some(paths) = rx.next().await {
-        if let Some(path) = paths.get(0) {
-            let mut t = tty::TTY::open(path.clone()).await.unwrap();
-            while let Some(maybe_line) = t.lines.next().await {
-                if let Ok(line) = maybe_line {
-                    println!("{}", line);
-                }
-            }
-        }
-    }
+    let routes = ws::route();
+    warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
 }

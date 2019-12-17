@@ -14,3 +14,4 @@ futures-util = "0.3"
 log = "0.4"
 env_logger = "0.7"
 warp = { git = "https://github.com/seanmonstar/warp", rev = "b6cbcca0914cfb435ae19c1aab86c0ffa0316322" }
+serde_json = "1"
