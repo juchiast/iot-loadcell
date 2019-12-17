@@ -1,28 +1,58 @@
 use crate::Error;
-use serialport::posix::TTYPort;
+use futures::future;
+use futures::{StreamExt, TryStreamExt};
 use std::path::PathBuf;
 use std::pin::Pin;
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 
 pub struct TTY {
-    pub lines: Pin<Box<dyn futures::Stream<Item = tokio::io::Result<String>> + Send>>,
+    pub lines: Pin<Box<dyn futures::Stream<Item = String> + Send>>,
+    pub writer: Pin<Box<dyn tokio::io::AsyncWrite + Send>>,
 }
 
 impl TTY {
     pub async fn open(p: PathBuf) -> crate::Result<TTY> {
-        let port = tokio::task::spawn_blocking(move || TTYPort::open(&p, &Default::default()))
-            .await
-            .map_err(|_| Error::CantOpenTTY)?
-            .map_err(|_| Error::CantOpenTTY)?;
-        use std::os::unix::io::{FromRawFd, IntoRawFd};
-        let fd = port.into_raw_fd();
-        let file = unsafe { std::fs::File::from_raw_fd(fd) };
-        let tokio_file = tokio::fs::File::from_std(file);
-        let (r, _w) = tokio::io::split(tokio_file);
+        let port = tokio_serial::Serial::from_path(p, &Default::default()).map_err(|e| {
+            warn!("Error: {}", e);
+            Error::CantOpenTTY
+        })?;
+        let (r, mut w) = tokio::io::split(port);
         let buf_reader = tokio::io::BufReader::new(r);
-        use tokio::io::AsyncBufReadExt;
-        let lines = buf_reader.lines();
-        Ok(TTY {
-            lines: Box::pin(lines),
-        })
+        let mut lines = buf_reader.lines().filter_map(|x| {
+            future::ready(match x {
+                Err(e) => {
+                    warn!("Error: {}", e);
+                    None
+                }
+                Ok(x) => Some(x),
+            })
+        });
+
+        info!("Start handshake");
+
+        while let Some(s) = lines.next().await {
+            info!("Received {}", &s);
+            if s == "started" {
+                break;
+            }
+        }
+
+        let handshake = format!("hi {}\n", rand::random::<u8>());
+        w.write_all(handshake.as_bytes()).await.map_err(|e| {
+            warn!("Error: {}", e);
+            Error::CantWriteTTY
+        })?;
+
+        while let Some(s) = lines.next().await {
+            info!("Received {}", &s);
+            if s == handshake.trim() {
+                return Ok(TTY {
+                    lines: Box::pin(lines),
+                    writer: Box::pin(w),
+                });
+            }
+        }
+
+        Err(Error::NoHandshake)
     }
 }

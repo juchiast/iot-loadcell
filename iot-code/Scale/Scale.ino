@@ -17,7 +17,7 @@ struct GapCounter {
   GapCounter() {
     smallGapCount = 0;
     stableAverage = 0;
-    state = GapCounterState::CHANGING;
+    state = GapCounterState::STABLE;
   }
 
   void newGap(float x, float peak) {
@@ -34,10 +34,10 @@ struct GapCounter {
         return;
       case GapCounterState::STABLE:
         if (x >= GAP_THRESHOLD) {
+          Serial.println("changing");
           smallGapCount = 0;
           stableAverage = 0;
           state = GapCounterState::CHANGING;
-          Serial.println("changing");
         }
         return;
     }
@@ -61,7 +61,7 @@ struct GapCounter {
 GapCounter gap_counter;
 
 enum class RawReaderState {
-  UP, DOWN,
+  WAITING, UP, DOWN,
 };
 
 struct RawReader {
@@ -70,8 +70,7 @@ struct RawReader {
   RawReaderState state;
 
   RawReader() {
-    startValue = previousValue = -11111;
-    state = RawReaderState::UP;
+    state = RawReaderState::WAITING;
   }
 
   void newValue(float x) {
@@ -82,6 +81,23 @@ struct RawReader {
       case RawReaderState::DOWN:
         DOWN_newValue(x);
         return;
+    }
+  }
+
+  void newCommand(const String &buf) {
+    if (buf == "close") {
+      state = RawReaderState::WAITING;
+      gap_counter = GapCounter();
+      return;
+    }
+
+    if (state == RawReaderState::WAITING) {
+      if (buf.startsWith("hi ")) {
+        scale.set_scale();
+        scale.tare();
+        startValue = previousValue = -11111;
+        state = RawReaderState::UP;
+      }
     }
   }
 
@@ -117,26 +133,34 @@ private:
 };
 
 RawReader raw_reader;
+String buf;
 
 float calibration_factor = 2000;
 
 void setup() {
   Serial.begin(9600);
-  scale.set_scale();
-  scale.tare();
   pinMode(LED_BUILTIN, OUTPUT);
-
   raw_reader = RawReader();
   gap_counter = GapCounter();
-  Serial.println("changing");
+  Serial.println("started");
 }
 
 void loop() {
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == '\n') {
+      Serial.println(buf);
+      raw_reader.newCommand(buf);
+      buf = "";
+    } else {
+      buf += c;
+    }
+  }
+  
   scale.set_scale(calibration_factor);
   float x = scale.get_units();
   raw_reader.newValue(x);
   
   raw_reader.stateStuffs();
   gap_counter.stateStuffs();
-  Serial.println("");
 }

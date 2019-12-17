@@ -24,20 +24,27 @@ pub async fn ws_handle(name: String, mut ws: WebSocket) {
 
     let (mut ws_tx, mut ws_rx) = ws.split();
 
+    let mut lines = tty.lines;
+    let mut writer = tty.writer;
+
     let read_tty = tokio::spawn(async move {
-        while let Some(maybe_line) = tty.lines.next().await {
-            if let Err(e) = maybe_line {
-                warn!("{}", e);
+        while let Some(line) = lines.next().await {
+            if line == "close" {
                 break;
             }
-            let line = maybe_line.unwrap();
             if let Err(e) = ws_tx.send(Message::text(line)).await {
                 warn!("{}", e);
                 break;
             }
         }
+        debug!("Reader closed");
     });
-    let read_ws = tokio::spawn(async move { while let Some(Ok(_)) = ws_rx.next().await {} });
+    let read_ws = tokio::spawn(async move {
+        while let Some(Ok(_)) = ws_rx.next().await {}
+        use tokio::io::AsyncWriteExt;
+        writer.write_all(b"close\n").await.ok();
+        debug!("Writer closed");
+    });
     let _ = future::join(read_tty, read_ws).await;
     info!("Closed");
 }

@@ -8,6 +8,8 @@ mod ws;
 #[derive(Debug)]
 pub enum Error {
     CantOpenTTY,
+    CantWriteTTY,
+    NoHandshake,
 }
 
 pub type Result<T> = std::result::Result<T, crate::Error>;
