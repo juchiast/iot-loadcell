@@ -22,15 +22,15 @@ const WEIGHT_SCALE = {
 
 const MONEY_UNIT = {
     vnd: 1,
-    usd: 22.5,
+    usd: 22500,
 };
 
 class ScaleOutput extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            weightUnit: WEIGHT_SCALE.g,
-            moneyUnit: MONEY_UNIT.vnd,
+            weightUnit: 'g',
+            moneyUnit: 'vnd',
         };
     }
 

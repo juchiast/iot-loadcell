@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from 'react';
 import { Table, Button } from 'antd';
+import Api from '../../../api';
 
 const columns = [
     {
@@ -16,7 +17,7 @@ const columns = [
         render: (text) => <a>{text}</a>,
     },
     {
-        title: 'khối lượng (gam)',
+        title: 'khối lượng(gam)',
         dataIndex: 'weight',
         key: 'weight',
     },
@@ -24,6 +25,16 @@ const columns = [
         title: 'Phân loại',
         dataIndex: 'type',
         key: 'type',
+    },
+    {
+        title: 'Thời gian cân',
+        dataIndex: 'measureTime',
+        key: 'measureTime',
+    },
+    {
+        title: 'Tại',
+        dataIndex: 'createdAt',
+        key: 'createdAt',
     },
     {
         title: 'Hành động',
@@ -36,32 +47,35 @@ const columns = [
     },
 ];
 
-const data = [
-    {
-        key: '1',
-        name: 'Quả cam',
-        id: 32,
-        type: 'fruit',
-        weight: 45.6,
-    },
-    {
-        key: '2',
-        name: 'Quả cam',
-        id: 42,
-        type: 'fruit',
-        weight: 45.6,
-    },
-    {
-        key: '3',
-        name: 'Quả cam',
-        id: 32,
-        type: 'fruit',
-        weight: 45.6,
-    },
-];
+const getData = () => {
+    const data = Api.getDataItems();
+    console.log('xxx 799 data ', data);
+    const mappingData = data && data.map((item) => ({ ...item, key: item.id }));
+    return mappingData;
+};
 
 const Statistic = () => {
-    return <Table style={{ height: '100%' }} columns={columns} dataSource={data} />;
+    const data = getData();
+    console.log('xxx 700 data: ', data);
+    return (
+        <div style={{ height: '100%' }}>
+            <Table
+                style={{ height: '100%', paddingBottom: 15 }}
+                columns={columns}
+                dataSource={data}
+            />
+            <Button
+                type="danger"
+                icon="delete"
+                onClick={() => {
+                    Api.clearData();
+                }}
+                style={{ bottom: 10 }}
+            >
+                Xóa tất cả
+            </Button>
+        </div>
+    );
 };
 
 export default Statistic;
