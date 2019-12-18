@@ -1,24 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Layout, Select, Tooltip, Card, Input, Form, Button } from 'antd';
+import { Select, Tooltip, Input } from 'antd';
 import PRODUCTS from '../../Utils/Product';
 import './ItemSelect.scss';
 
 const { Option } = Select;
-const { Content } = Layout;
-const { Meta } = Card;
 const { Search } = Input;
-
-const DumpData = {
-    vegas: [{ rauCai: 'Rau cải' }, { rauNgot: 'Rau ngót' }, { carrot: 'Cà rốt' }],
-    fruit: [{ banana: 'Chuối' }, { orange: 'Cam' }, { waterLemon: 'Bưởi' }],
-    meet: [
-        { kobeBeef: 'Thịt bò Kobe' },
-        { pigDui: 'Thịt heo đùi' },
-        { pigBaChi: 'Thịt heo ba chỉ' },
-        { chicken: 'Thịt gà' },
-    ],
-};
 
 class ItemSelect extends Component {
     constructor(props) {
@@ -37,7 +24,6 @@ class ItemSelect extends Component {
             itemKey,
             ...PRODUCTS[value].items[itemKey],
         };
-        console.log('xxx 603 ', selectedItem);
 
         this.setState({ ...selectedItem });
 
@@ -60,8 +46,7 @@ class ItemSelect extends Component {
     };
 
     render() {
-        const { typeName, typeKey, itemKey, name } = this.state;
-        console.log('xxx 601 ', this.state);
+        const { typeKey, itemKey } = this.state;
         return (
             <div style={{ position: 'absolute', top: 15, left: 10 }}>
                 <Search

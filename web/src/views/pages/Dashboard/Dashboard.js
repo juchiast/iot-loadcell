@@ -1,37 +1,24 @@
 import React, { Component } from 'react';
-import {
-    Layout,
-    Select,
-    Tooltip,
-    Card,
-    Descriptions,
-    Spin,
-    Input,
-    Form,
-    Button,
-    Col,
-    Row,
-} from 'antd';
+import { Layout, Select, Card, Descriptions, Spin, Button, Col, Row } from 'antd';
 import './Dashboard.scss';
 
 import ItemSelect from '../../../components/ItemSelect';
 import ScaleOutput from '../../../containers/ScaleOutput';
 import PRODUCTS from '../../../Utils/Product';
 
-const { Option } = Select;
 const { Content } = Layout;
 const { Meta } = Card;
 
-const DumpData = {
-    vegas: [{ rauCai: 'Rau cải' }, { rauNgot: 'Rau ngót' }, { carrot: 'Cà rốt' }],
-    fruit: [{ banana: 'Chuối' }, { orange: 'Cam' }, { waterLemon: 'Bưởi' }],
-    meet: [
-        { kobeBeef: 'Thịt bò Kobe' },
-        { pigDui: 'Thịt heo đùi' },
-        { pigBaChi: 'Thịt heo ba chỉ' },
-        { chicken: 'Thịt gà' },
-    ],
-};
+// const DumpData = {
+//     vegas: [{ rauCai: 'Rau cải' }, { rauNgot: 'Rau ngót' }, { carrot: 'Cà rốt' }],
+//     fruit: [{ banana: 'Chuối' }, { orange: 'Cam' }, { waterLemon: 'Bưởi' }],
+//     meet: [
+//         { kobeBeef: 'Thịt bò Kobe' },
+//         { pigDui: 'Thịt heo đùi' },
+//         { pigBaChi: 'Thịt heo ba chỉ' },
+//         { chicken: 'Thịt gà' },
+//     ],
+// };
 
 let AutoItemID = 0;
 const MIN_WEIGHT = 1;
@@ -42,10 +29,7 @@ class Dashboard extends Component {
     constructor(props) {
         super(props);
         const defaultTypeItem = Object.keys(PRODUCTS)[0];
-        console.log('xxx 400 ', defaultTypeItem);
         this.state = {
-            typeItem: 'vegas',
-            nameItem: Object.keys(DumpData.vegas[0])[0],
             selectedItem: {
                 typeKey: defaultTypeItem,
                 typeName: PRODUCTS[defaultTypeItem].title,
@@ -113,16 +97,7 @@ class Dashboard extends Component {
     };
 
     render() {
-        const {
-            typeItem,
-            nameItem,
-            isMeasured,
-            autoId,
-            weight,
-            measureTime,
-            selectedItem,
-        } = this.state;
-        console.log('xx005 nameItem: ', selectedItem);
+        const { isMeasured, autoId, weight, measureTime, selectedItem } = this.state;
         return (
             <Content style={{ margin: '0 16px' }} className="dashboard">
                 <Row
@@ -153,7 +128,7 @@ class Dashboard extends Component {
                             }}
                             cover={
                                 <img
-                                    maxHeight={400}
+                                    maxheight={400}
                                     alt={selectedItem.name}
                                     src={selectedItem.img}
                                 />
@@ -186,7 +161,7 @@ class Dashboard extends Component {
                             justifyContent: 'center',
                         }}
                     >
-                        <ScaleOutput isMeasured={isMeasured} weight={weight} item={nameItem} />
+                        <ScaleOutput isMeasured={isMeasured} weight={weight} item={selectedItem} />
                         <div>
                             <Button
                                 type="primary"

@@ -1,38 +1,9 @@
 import React from 'react';
-import { Media } from 'reactstrap';
-
-import {
-    Layout,
-    Select,
-    Tooltip,
-    Card,
-    Descriptions,
-    Spin,
-    Input,
-    Form,
-    Button,
-    Col,
-    Row,
-} from 'antd';
+import { Select, Input, Form } from 'antd';
 import './ScaleOutput.scss';
 import QRCode from 'qrcode.react';
 
 const { Option } = Select;
-const InputGroup = Input.Group;
-
-const measureSelectAfter = (
-    <Select defaultValue="gram" style={{ width: 80 }}>
-        <Option value="gram" key="gam">
-            gram
-        </Option>
-        <Option value="kg" key="kg">
-            kilograms
-        </Option>
-        <Option value="milligram" key="ml">
-            milligram
-        </Option>
-    </Select>
-);
 
 const priceSelectAfter = (
     <Select defaultValue="vnd" style={{ width: 80 }}>
@@ -49,12 +20,17 @@ const WEIGHT_SCALE = {
     mg: 1000,
 };
 
+const MONEY_UNIT = {
+    vnd: 1,
+    usd: 22.5,
+};
+
 class ScaleOutput extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            weightUnit: 'g',
-            moneyUnit: 'VND',
+            weightUnit: WEIGHT_SCALE.g,
+            moneyUnit: MONEY_UNIT.vnd,
         };
     }
 
@@ -62,14 +38,20 @@ class ScaleOutput extends React.Component {
         this.setState({ weightUnit: unit });
     };
 
+    onMoneyUnitSelect = (unit) => {
+        this.setState({ moneyUnit: unit });
+    };
+
     render() {
         const { isMeasured, weight, item } = this.props;
-        const { weightUnit } = this.state;
+        const { weightUnit, moneyUnit } = this.state;
 
         return (
             <div>
                 <div style={{ visibility: weight ? 'visible' : 'hidden' }}>
-                    <QRCode value={`Name: ${item.name}|Weight: ${weight}|Price: ${item.price}`} />
+                    <QRCode
+                        value={`Name: ${item.name}|Weight: ${weight}|Price: ${item.price}VND`}
+                    />
                 </div>
 
                 <Form.Item hasFeedback validateStatus={isMeasured ? 'success' : 'validating'}>
@@ -106,8 +88,17 @@ class ScaleOutput extends React.Component {
                     <Input
                         id="price"
                         addonBefore="Giá sản phầm"
-                        addonAfter={priceSelectAfter}
-                        value=""
+                        addonAfter={
+                            <Select
+                                value={moneyUnit}
+                                style={{ width: 80 }}
+                                onSelect={this.onMoneyUnitSelect}
+                            >
+                                <Option value="vnd">VND</Option>
+                                <Option value="usd">USD</Option>
+                            </Select>
+                        }
+                        value={weight ? (item.price / MONEY_UNIT[moneyUnit]).toFixed(2) : ''}
                         disabled
                     />
                 </Form.Item>
