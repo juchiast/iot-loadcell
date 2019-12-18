@@ -16,7 +16,9 @@
         "react/jsx-no-target-blank": [0, { "allowReferrer": true, "enforceDynamicLinks": "never" }],
         "no-unused-vars": "warn",
         // "no-console": "off",
-        "func-names": "off"
+        "func-names": "off",
+        "no-restricted-globals": ["error", "NaN", "fdescribe"]
+
         // "no-process-exit": "off",
         // "object-shorthand": "off",
         // "class-methods-use-this": "off"

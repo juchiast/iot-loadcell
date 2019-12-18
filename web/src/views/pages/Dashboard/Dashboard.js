@@ -12,10 +12,10 @@ import {
     Col,
     Row,
 } from 'antd';
-import QRCode from 'qrcode.react';
 import './Dashboard.scss';
 
 import ItemSelect from '../../../components/ItemSelect';
+import ScaleOutput from '../../../containers/ScaleOutput';
 
 const { Option } = Select;
 const { Content } = Layout;
@@ -32,22 +32,11 @@ const DumpData = {
     ],
 };
 
-const measureSelectAfter = (
-    <Select defaultValue="gram" style={{ width: 80 }}>
-        <Option value="gram">gram</Option>
-        <Option value="kg">kilograms</Option>
-        <Option value="milligram">milligram</Option>
-    </Select>
-);
-
-const priceSelectAfter = (
-    <Select defaultValue="vnd" style={{ width: 80 }}>
-        <Option value="vnd">VND</Option>
-        <Option value="usd">USD</Option>
-    </Select>
-);
+const MIN_WEIGHT = 3;
 
 class Dashboard extends Component {
+    ws = new WebSocket('ws://localhost:8080/dev/ttyUSB0');
+
     constructor(props) {
         super(props);
         this.state = {
@@ -55,6 +44,30 @@ class Dashboard extends Component {
             nameItem: Object.keys(DumpData.vegas[0])[0],
             isMeasured: false,
             autoId: '3432',
+            weight: 0,
+        };
+    }
+
+    componentDidMount() {
+        this.ws.onopen = () => {
+            // on connecting, do nothing but log it to the console
+            console.log('connected');
+        };
+
+        this.ws.onmessage = (evt) => {
+            // listen to data sent from the websocket server
+            console.log('Message server: ', evt.data);
+            let weight = '';
+            if (!isNaN(evt.data)) {
+                weight = Number(evt.data) > MIN_WEIGHT ? Number(evt.data) : '';
+            }
+
+            this.setState({ weight, isMeasured: !!(Number(weight) && weight > MIN_WEIGHT) });
+        };
+
+        this.ws.onclose = () => {
+            console.log('disconnected');
+            // automatically try to reconnect on connection loss
         };
     }
 
@@ -77,7 +90,7 @@ class Dashboard extends Component {
     };
 
     render() {
-        const { typeItem, nameItem, isMeasured, autoId } = this.state;
+        const { typeItem, nameItem, isMeasured, autoId, weight } = this.state;
         console.log('xx00 nameItem: ', nameItem);
         return (
             <Content style={{ margin: '0 16px' }} className="dashboard">
@@ -133,39 +146,13 @@ class Dashboard extends Component {
                             justifyContent: 'center',
                         }}
                     >
+                        <ScaleOutput isMeasured={isMeasured} weight={weight} item={nameItem} />
                         <div>
-                            <QRCode value="http://facebook.github.io/react/" />
-                        </div>
-                        <div>
-                            <Form.Item
-                                // label="Validating"
-                                hasFeedback
-                                validateStatus={isMeasured ? 'success' : 'validating'}
-                                // help={isMeasured ? '' : 'Đang cân...'}
+                            <Button
+                                type="primary"
+                                onClick={this.nextItemOnClick}
+                                disabled={!isMeasured}
                             >
-                                <Input
-                                    id="validating"
-                                    addonBefore="Khối lượng"
-                                    addonAfter={measureSelectAfter}
-                                    disabled
-                                />
-                            </Form.Item>
-                            <Form.Item
-                                // label="Giá sản phẩm"
-                                hasFeedback
-                                validateStatus={isMeasured ? 'success' : 'validating'}
-                                help={isMeasured ? '' : 'Đang cân...'}
-                            >
-                                <Input
-                                    id="price"
-                                    addonBefore="Giá sản phầm"
-                                    addonAfter={priceSelectAfter}
-                                    disabled
-                                />
-                            </Form.Item>
-                        </div>
-                        <div>
-                            <Button type="primary" onClick={this.nextItemOnClick}>
                                 OK
                             </Button>
                         </div>
