@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Layout, Select, Tooltip, Card, Input, Form, Button } from 'antd';
+import PRODUCTS from '../../Utils/Product';
 import './ItemSelect.scss';
 
 const { Option } = Select;

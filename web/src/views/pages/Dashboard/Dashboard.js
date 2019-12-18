@@ -16,6 +16,8 @@ import './Dashboard.scss';
 
 import ItemSelect from '../../../components/ItemSelect';
 import ScaleOutput from '../../../containers/ScaleOutput';
+import PRODUCTS from '../../../Utils/Product';
+import { string } from 'prop-types';
 
 const { Option } = Select;
 const { Content } = Layout;
@@ -32,19 +34,28 @@ const DumpData = {
     ],
 };
 
-const MIN_WEIGHT = 3;
+let AutoItemID = 0;
+const MIN_WEIGHT = 1;
 
 class Dashboard extends Component {
     ws = new WebSocket('ws://localhost:8080/dev/ttyUSB0');
 
     constructor(props) {
         super(props);
+        const defaultTypeItem = Object.keys(PRODUCTS)[0];
+        console.log('xxx 400 ', defaultTypeItem);
         this.state = {
             typeItem: 'vegas',
             nameItem: Object.keys(DumpData.vegas[0])[0],
+            selectedItem: {
+                typeName: PRODUCTS[defaultTypeItem].title,
+                ...PRODUCTS[defaultTypeItem].items[Object.keys(PRODUCTS[defaultTypeItem].items)[0]],
+            },
             isMeasured: false,
             autoId: '3432',
             weight: 0,
+            measureTimeStart: 0,
+            measureTime: 0,
         };
     }
 
@@ -58,11 +69,31 @@ class Dashboard extends Component {
             // listen to data sent from the websocket server
             console.log('Message server: ', evt.data);
             let weight = '';
+
             if (!isNaN(evt.data)) {
                 weight = Number(evt.data) > MIN_WEIGHT ? Number(evt.data) : '';
+            } else {
+                this.setState({ measureTimeStart: new Date().getTime() });
             }
 
-            this.setState({ weight, isMeasured: !!(Number(weight) && weight > MIN_WEIGHT) });
+            let isMeasured = false;
+            let measureTime = null;
+            let autoId = null;
+            const { measureTimeStart } = this.state;
+
+            if (Number(weight) && weight > MIN_WEIGHT) {
+                isMeasured = true;
+                AutoItemID += 1;
+                autoId = AutoItemID;
+                measureTime = new Date().getTime() - measureTimeStart;
+            }
+
+            this.setState({
+                weight,
+                isMeasured,
+                autoId,
+                measureTime,
+            });
         };
 
         this.ws.onclose = () => {
@@ -71,27 +102,26 @@ class Dashboard extends Component {
         };
     }
 
-    onTypeChange = (value) => {
-        this.setState({ typeItem: value, nameItem: Object.keys(DumpData[value][0])[0] });
-        console.log('xxx type change: ', Object.keys(DumpData[value][0])[0]);
-    };
-
-    onNameChange = (value) => {
-        this.setState({ nameItem: value });
-    };
-
     nextItemOnClick = () => {
         const { isMeasured: preMeasure } = this.state;
         this.setState({ isMeasured: !preMeasure });
     };
 
-    onItemSelect = (typeItem, nameItem) => {
-        this.setState({ typeItem, nameItem });
+    onItemSelect = (selectedItem) => {
+        this.setState({ selectedItem });
     };
 
     render() {
-        const { typeItem, nameItem, isMeasured, autoId, weight } = this.state;
-        console.log('xx00 nameItem: ', nameItem);
+        const {
+            typeItem,
+            nameItem,
+            isMeasured,
+            autoId,
+            weight,
+            measureTime,
+            selectedItem,
+        } = this.state;
+        console.log('xx00 nameItem: ', selectedItem);
         return (
             <Content style={{ margin: '0 16px' }} className="dashboard">
                 <Row
@@ -114,16 +144,11 @@ class Dashboard extends Component {
                             <Card
                                 hoverable
                                 style={{ maxWidth: 480, margin: 'auto' }}
-                                cover={
-                                    <img
-                                        alt={nameItem}
-                                        src="https://i.pinimg.com/originals/fd/e4/62/fde462effe7d3f9b53e0a70a3b3b925e.jpg"
-                                    />
-                                }
+                                cover={<img alt={selectedItem.name} src={selectedItem.img} />}
                             >
                                 <Meta
-                                    title={nameItem}
-                                    description={`Sản phẩm tên ${nameItem} trong loại ${typeItem}`}
+                                    title={selectedItem.name}
+                                    description={`Sản phẩm tên ${selectedItem.name} trong loại ${selectedItem.typeName}`}
                                 />
                             </Card>
                         </div>
@@ -133,6 +158,9 @@ class Dashboard extends Component {
                                     {isMeasured ? autoId : <Spin />}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Thời gian cân">
+                                    {isMeasured ? `${measureTime / 1000}s` : <Spin />}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Tại">
                                     {isMeasured ? new Date().toLocaleString() : <Spin />}
                                 </Descriptions.Item>
                             </Descriptions>

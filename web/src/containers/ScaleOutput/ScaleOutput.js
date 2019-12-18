@@ -41,7 +41,7 @@ const priceSelectAfter = (
     </Select>
 );
 
-const QR_DEFAULT = 'http://facebook.github.io/react/';
+const QR_DEFAULT = 'http://scale-iot.io/';
 
 const WEIGHT_SCALE = {
     g: 1,
@@ -69,7 +69,7 @@ class ScaleOutput extends React.Component {
         return (
             <div>
                 <div style={{ visibility: weight ? 'visible' : 'hidden' }}>
-                    <QRCode value={`${QR_DEFAULT}${weight + new Date().getTime()}`} />
+                    <QRCode value={`Name: ${item.name}|Weight: ${weight}|Price: ${item.price}`} />
                 </div>
 
                 <Form.Item hasFeedback validateStatus={isMeasured ? 'success' : 'validating'}>
@@ -107,7 +107,7 @@ class ScaleOutput extends React.Component {
                         id="price"
                         addonBefore="Giá sản phầm"
                         addonAfter={priceSelectAfter}
-                        value="99"
+                        value=""
                         disabled
                     />
                 </Form.Item>
