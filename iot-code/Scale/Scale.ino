@@ -5,7 +5,7 @@
 HX711 scale(A1, A0);
 
 #define GAP_THRESHOLD 0.1
-#define STABLE_THRESHOLD 10
+#define STABLE_THRESHOLD 5
 
 enum class GapCounterState {
   CHANGING, STABLE,
@@ -32,6 +32,9 @@ struct GapCounter {
             Serial.println((int)(stableAverage / smallGapCount));
             state = GapCounterState::STABLE;
           }
+        } else {
+          smallGapCount = 0;
+          stableAverage = 0;
         }
         return;
       case GapCounterState::STABLE:
