@@ -32,6 +32,9 @@ struct GapCounter {
             Serial.println((int)(stableAverage / smallGapCount));
             state = GapCounterState::STABLE;
           }
+        } else {
+          smallGapCount = 0;
+          stableAverage = 0;
         }
         return;
       case GapCounterState::STABLE:
