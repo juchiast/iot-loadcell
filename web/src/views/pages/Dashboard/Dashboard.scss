@@ -1,3 +1,5 @@
+@import '~antd/dist/antd.css';
+
 .dashboard {
     height: 100%;
 
@@ -11,6 +13,9 @@
 
     .ant-form-item-children-icon {
         right: 100px !important;
+    }
+
+    &__left {
     }
 }
 

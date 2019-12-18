@@ -17,7 +17,6 @@ import './Dashboard.scss';
 import ItemSelect from '../../../components/ItemSelect';
 import ScaleOutput from '../../../containers/ScaleOutput';
 import PRODUCTS from '../../../Utils/Product';
-import { string } from 'prop-types';
 
 const { Option } = Select;
 const { Content } = Layout;
@@ -48,7 +47,9 @@ class Dashboard extends Component {
             typeItem: 'vegas',
             nameItem: Object.keys(DumpData.vegas[0])[0],
             selectedItem: {
+                typeKey: defaultTypeItem,
                 typeName: PRODUCTS[defaultTypeItem].title,
+                itemKey: Object.keys(PRODUCTS[defaultTypeItem].items)[0],
                 ...PRODUCTS[defaultTypeItem].items[Object.keys(PRODUCTS[defaultTypeItem].items)[0]],
             },
             isMeasured: false,
@@ -121,11 +122,11 @@ class Dashboard extends Component {
             measureTime,
             selectedItem,
         } = this.state;
-        console.log('xx00 nameItem: ', selectedItem);
+        console.log('xx005 nameItem: ', selectedItem);
         return (
             <Content style={{ margin: '0 16px' }} className="dashboard">
                 <Row
-                    className="dashboard__row"
+                    className="dashboard__row "
                     style={{
                         height: '100%',
                         display: 'flex',
@@ -138,20 +139,31 @@ class Dashboard extends Component {
                             justifyContent: 'space-evenly',
                             flexFlow: 'column nowrap',
                         }}
+                        className="dashboard__left"
                     >
-                        <ItemSelect onSelect={this.onItemSelect} />
-                        <div>
-                            <Card
-                                hoverable
-                                style={{ maxWidth: 480, margin: 'auto' }}
-                                cover={<img alt={selectedItem.name} src={selectedItem.img} />}
-                            >
-                                <Meta
-                                    title={selectedItem.name}
-                                    description={`Sản phẩm tên ${selectedItem.name} trong loại ${selectedItem.typeName}`}
+                        <ItemSelect onSelect={this.onItemSelect} item={selectedItem} />
+                        <Card
+                            hoverable
+                            style={{
+                                top: 25,
+                                width: 400,
+                                maxHeight: 500,
+                                margin: '10px auto',
+                                padding: 5,
+                            }}
+                            cover={
+                                <img
+                                    maxHeight={400}
+                                    alt={selectedItem.name}
+                                    src={selectedItem.img}
                                 />
-                            </Card>
-                        </div>
+                            }
+                        >
+                            <Meta
+                                title={selectedItem.name}
+                                description={`Sản phẩm tên ${selectedItem.name} trong loại ${selectedItem.typeName}`}
+                            />
+                        </Card>
                         <div>
                             <Descriptions size="small" column={1}>
                                 <Descriptions.Item label="ID đơn hàng">

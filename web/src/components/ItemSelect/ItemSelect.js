@@ -23,54 +23,66 @@ const DumpData = {
 class ItemSelect extends Component {
     constructor(props) {
         super(props);
+        const { item } = this.props;
         this.state = {
-            typeItem: 'vegas',
-            nameItem: Object.keys(DumpData.vegas[0])[0],
+            ...item,
         };
     }
 
     onTypeChange = (value) => {
+        const itemKey = Object.keys(PRODUCTS[value].items)[0];
+        const selectedItem = {
+            typeKey: value,
+            typeName: PRODUCTS[value].title,
+            itemKey,
+            ...PRODUCTS[value].items[itemKey],
+        };
+        console.log('xxx 603 ', selectedItem);
+
+        this.setState({ ...selectedItem });
+
         const { onSelect } = this.props;
-
-        const typeItem = value;
-        const nameItem = Object.keys(DumpData[value][0])[0];
-        this.setState({ typeItem, nameItem });
-        // console.log('xxx type change: ', Object.keys(DumpData[value][0])[0]);
-
-        onSelect(typeItem, nameItem);
+        onSelect(selectedItem);
     };
 
     onNameChange = (value) => {
+        const { typeName, typeKey } = this.state;
+        const selectedItem = {
+            typeKey,
+            typeName,
+            itemKey: value,
+            ...PRODUCTS[typeKey].items[value],
+        };
         const { onSelect } = this.props;
-        const { typeItem } = this.state;
+        this.setState({ ...selectedItem });
 
-        const nameItem = value;
-        this.setState({ nameItem });
-
-        onSelect(typeItem, nameItem);
+        onSelect(selectedItem);
     };
 
     render() {
-        const { typeItem, nameItem } = this.state;
+        const { typeName, typeKey, itemKey, name } = this.state;
+        console.log('xxx 601 ', this.state);
         return (
-            <div>
+            <div style={{ position: 'absolute', top: 15, left: 10 }}>
                 <Search
                     placeholder="Tìm kiếm sản phẩm"
-                    onSearch={(value) => console.log(value)}
+                    onSearch={(value) => console.log('Search: ', value)}
                     style={{ width: 200 }}
                 />
                 <Tooltip title="Loại">
-                    <Select defaultValue={typeItem} onChange={this.onTypeChange}>
-                        <Option value="vegas">Rau củ</Option>
-                        <Option value="fruit">Trái cây</Option>
-                        <Option value="meet">Thịt</Option>
+                    <Select defaultValue={typeKey} value={typeKey} onChange={this.onTypeChange}>
+                        {Object.keys(PRODUCTS).map((type) => (
+                            <Option value={type} key={`type_${type}`}>
+                                {PRODUCTS[type].title}
+                            </Option>
+                        ))}
                     </Select>
                 </Tooltip>
                 <Tooltip title="Tên sản phẩm">
-                    <Select defaultValue={nameItem} value={nameItem} onChange={this.onNameChange}>
-                        {DumpData[typeItem].map((v) => (
-                            <Option key={`nameItem_${new Date()}`} value={Object.keys(v)[0]}>
-                                {v[Object.keys(v)[0]]}
+                    <Select defaultValue={itemKey} value={itemKey} onChange={this.onNameChange}>
+                        {Object.keys(PRODUCTS[typeKey].items).map((v) => (
+                            <Option value={v} key={`nameItem_${v}`}>
+                                {PRODUCTS[typeKey].items[v].name}
                             </Option>
                         ))}
                     </Select>
