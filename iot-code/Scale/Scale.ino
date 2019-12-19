@@ -4,7 +4,7 @@
 // DT -> A1
 HX711 scale(A1, A0);
 
-#define GAP_THRESHOLD 0.1
+#define GAP_THRESHOLD 1
 #define STABLE_THRESHOLD 5
 
 enum class GapCounterState {
