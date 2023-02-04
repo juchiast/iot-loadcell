@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 serialport = "3.3"
-tokio = "0.2"
+tokio = "1.18"
 tokio-serial = "4.3.3"
 futures = "0.3"
 futures-util = "0.3"
